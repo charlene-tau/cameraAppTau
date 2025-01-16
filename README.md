@@ -88,3 +88,10 @@ npx react-native run-android
 
 SDK path
 C:\Users\<YourUsername>\AppData\Local\Android\Sdk
+
+Test camera on emulator
+adb shell  #get access to the phone terminal
+am start -a android.media.action.IMAGE_CAPTURE
+
+
+
