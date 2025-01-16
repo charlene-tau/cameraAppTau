@@ -1,11 +1,14 @@
-import React,{useState} from 'react';
+import React,{useState,useEffect } from 'react';
 import {StyleSheet, View, TouchableOpacity, Text} from 'react-native';
 import {NativeModules} from 'react-native';
 const {CameraModule} = NativeModules;
 
 const CameraScreen=({navigation}: {navigation: any})=>{
     const [flash, setFlash] = useState(false);
-
+    useEffect(() => {
+    // Call the openCamera method when the screen loads
+    CameraModule.openCamera();
+  }, []);
     const toggleFlash = async () => {
     try {
     console.log("Toggle Flash clicked")
@@ -19,6 +22,7 @@ const CameraScreen=({navigation}: {navigation: any})=>{
   const takePhoto = async () => {
     try {
       const photoPath = await CameraModule.openCamera();
+      console.log("take photo function called")
       navigation.navigate('PhotoPreviewScreen', {photoPath});
     } catch (error) {
       console.error('Error taking photo:', error);
@@ -28,6 +32,7 @@ const CameraScreen=({navigation}: {navigation: any})=>{
 
   return (
     <View style={styles.container}>
+        <Text>Camera is opening...</Text>
       {/* Camera Preview Placeholder */}
       <View style={styles.cameraPreview} />
 
@@ -47,7 +52,7 @@ const CameraScreen=({navigation}: {navigation: any})=>{
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'black',
+    backgroundColor: 'blue',
     justifyContent: 'flex-end',
     alignItems: 'center',
   },
@@ -57,14 +62,14 @@ const styles = StyleSheet.create({
   },
   flashButton: {
     position: 'absolute',
-    top: 50,
-    left: 20,
+    top: 10,
+    right: 20,
     backgroundColor: 'white',
     padding: 10,
     borderRadius: 5,
   },
   flashText: {
-    color: 'black',
+    color: 'blue',
     fontWeight: 'bold',
   },
   captureButton: {
