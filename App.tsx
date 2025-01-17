@@ -4,6 +4,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 import HomeScreen from './components/HomeScreen';
 import CameraScreen from './components/CameraScreen';
 import PhotoPreviewScreen from './components/PhotoPreviewScreen';
+import NextScreen from './components/NextScreen';
 import 'react-native-gesture-handler';
 const Stack = createStackNavigator();
 
@@ -14,6 +15,7 @@ const App = () => {
         <Stack.Screen name="HomeScreen" component={HomeScreen} />
         <Stack.Screen name="CameraScreen" component={CameraScreen} />
         <Stack.Screen name="PhotoPreviewScreen" component={PhotoPreviewScreen} />
+        <Stack.Screen name="NextScreen" component={NextScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
