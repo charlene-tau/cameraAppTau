@@ -5,14 +5,15 @@ const {CameraModule} = NativeModules;
 
 const CameraScreen=({navigation}: {navigation: any})=>{
     const [flash, setFlash] = useState(false);
-    useEffect(() => {
-    // Call the openCamera method when the screen loads
-    CameraModule.openCamera();
-  }, []);
+  //   useEffect(() => {
+  //   // Call the openCamera method when the screen loads
+  //   CameraModule.openCamera();
+  // }, []);
     const toggleFlash = async () => {
     try {
-    console.log("Toggle Flash clicked")
+    console.log("Toggle Flash clicked HEre today")
       const newFlashState = await CameraModule.toggleFlashMode();
+      console.log("newFlashState: ", newFlashState)
       setFlash(newFlashState);
     } catch (error) {
       console.error('Error toggling flash:', error);
@@ -20,12 +21,14 @@ const CameraScreen=({navigation}: {navigation: any})=>{
   };
 
   const takePhoto = async () => {
+    console.log("take photo function called outside")
     try {
-      const photoPath = await CameraModule.openCamera();
       console.log("take photo function called")
-      navigation.navigate('PhotoPreviewScreen', {photoPath});
+      const photoPath = await CameraModule.openCamera();
+      
+      //navigation.navigate('PhotoPreviewScreen', {photoPath});
     } catch (error) {
-      console.error('Error taking photo:', error);
+      console.error('Error taking photo charlene:', error);
     }
 
   };
