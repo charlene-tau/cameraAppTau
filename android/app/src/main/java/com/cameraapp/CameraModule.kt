@@ -19,6 +19,13 @@ import androidx.core.content.ContextCompat
 import android.Manifest
 import android.content.pm.PackageManager
 
+import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReactContext
+import com.facebook.react.bridge.ReactContextBaseJavaModule
+import com.facebook.react.bridge.ReactMethod
+
+
+
 
 class CameraModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
     companion object {
@@ -36,45 +43,40 @@ class CameraModule(reactContext: ReactApplicationContext) : ReactContextBaseJava
 
     @ReactMethod
     fun openCamera(promise: Promise) {
-        val currentActivity = currentActivity as? MainActivity
-        if (currentActivity != null) {
+        val currentActivity = currentActivity 
+        if (currentActivity == null) {
+        Log.e("MyTag", "Current activity is null, cannot launch camera")
+        promise.reject("Error", "Activity is null")
+        return
+    }
+
+        if (ContextCompat.checkSelfPermission(currentActivity, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+           Log.d("MyTag", "inside this new IF BLOCK")
+           ActivityCompat.requestPermissions(currentActivity, arrayOf(Manifest.permission.CAMERA), 101)
+           promise.reject("PERMISSION_DENIED", "Camera permission not granted")
+           return
+       }
+
+       try{
             val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             Log.d("MyTag", "Launching camera with intent: $cameraIntent")
+            if (currentActivity is MainActivity) {
             currentActivity.launchCamera(cameraIntent)
-            promise.resolve("Camera opened successfully")
-        } else {
-            Log.e("MyTag", "Current activity is null, cannot launch camera")
-            promise.reject("Error", "Activity is null")
+
+                promise.resolve("Camera opened successfully")}
+
+            else {
+            Log.e("MyTag", "Current activity is not MainActivity, cannot launch camera")
+            promise.reject("Error", "Current activity is not MainActivity")
         }
 
-//        val activity = currentActivity
-//        Log.d("MyTag", "openCamera method invoked Pigs are cute")
-//        Log.d("MyTag", "activity : $activity")
-//        if (activity == null) {
-//            promise.reject("NO_ACTIVITY", "No activity found")
-//            return
-//        }
-//        Log.d("MyTag", "check this condition: ${(ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)}")
-//        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-//            Log.d("MyTag", "inside this new IF BLOCK")
-//            ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.CAMERA), 101)
-//            promise.reject("PERMISSION_DENIED", "Camera permission not granted")
-//            return
-//        }
-//
-//        try {
-//            // Create an intent to open the camera
-//            val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-//            Log.d("MyTag", "cameraIntent piglest : $cameraIntent")
-//            // Start the camera activity
-//            activity.startActivityForResult(cameraIntent, 1)
-//
-//            // Resolve the promise immediately (the emulator doesn't save real images)
-//            promise.resolve("Camera opened successfully")
-//        } catch (e: Exception) {
-//            promise.reject("CAMERA_ERROR", "Failed to open camera", e)
-//        }
-    }
+       }
+       catch (e: Exception) {
+        Log.e("MyTag", "Error launching camera: ${e.message}")
+        promise.reject("Error", "Failed to open camera: ${e.message}")
+    }}
+        
+
 
     @ReactMethod
     fun addListener(eventName: String) {

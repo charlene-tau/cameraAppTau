@@ -6,6 +6,7 @@ const {CameraModule} = NativeModules;
 const HomeScreen = ({navigation}: {navigation: any}) => {
 
 useEffect(() => {
+  console.log("hello world")
     const subscription = DeviceEventEmitter.addListener('ImageCaptured', (data) => {
       console.log("in Homescreen useEffect")
         if (data === 'success') {
@@ -17,23 +18,7 @@ useEffect(() => {
         subscription.remove();
     };
 }, []);
-// useEffect(() => {
-//   console.log("inside useEffect function")
-//     const eventEmitter = new NativeEventEmitter(CameraModule);
-//     const subscription = eventEmitter.addListener('ImageCaptured', (data) => {
-//       console.log('ImageCaptured event received with data:', data);
-//       alert(`Event received: ${data}`);
-//       if (data === 'success') {
-//         console.log('ImageCaptured event received');
-//         // Navigate to the new screen
-//         navigation.navigate('NextScreen'); // Replace 'NextScreen' with the actual screen name
-//       }
-//     });
 
-//     return () => {
-//       subscription.remove(); // Clean up the listener when the component unmounts
-//     };
-//   }, []);
 
   const openCamera = async () => {
     try {

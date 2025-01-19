@@ -74,10 +74,10 @@ def jscFlavor = 'org.webkit:android-jsc:+'
 
 android {
     ndkVersion rootProject.ext.ndkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    //buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
     compileSdkVersion rootProject.ext.compileSdkVersion // Refers to the value in the root build.gradle
-    // buildToolsVersion rootProject.ext.buildToolsVersion ?: "34.0.0"
+    buildToolsVersion rootProject.ext.buildToolsVersion ?: "34.0.0"
     namespace "com.cameraapp"
     defaultConfig {
         applicationId "com.cameraapp"
