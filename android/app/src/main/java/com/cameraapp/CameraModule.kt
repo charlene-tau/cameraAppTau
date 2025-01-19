@@ -24,7 +24,8 @@ import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.module.annotations.ReactModule
-
+import android.os.Handler
+import android.os.Looper
 
 
 @ReactModule(name = CameraModule.NAME)
@@ -83,7 +84,7 @@ class CameraModule(reactContext: ReactApplicationContext) : ReactContextBaseJava
     @ReactMethod
     fun addListener(eventName: String) {
         // This is required for React Native to manage event listeners
-        Log.d("CameraModule", "Listener added for event:")
+        Log.d("CameraModule", "Listener added for event: $eventName")
     }
 
     @ReactMethod
@@ -92,13 +93,39 @@ class CameraModule(reactContext: ReactApplicationContext) : ReactContextBaseJava
         Log.d("CameraModule", "Listeners removed:")
     }
 
-    fun sendEventToReact(eventName: String, params: String) {
-        Log.d("CameraModule", "sendEventToReact called with event: $eventName and params: $params")
-        reactApplicationContext
-            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-            .emit(eventName, params)
-    }
+    // fun sendEventToReact(eventName: String, params: String) {
+    //     Log.d("CameraModule", "sendEventToReact called with event: $eventName and params: $params")
+    //     reactApplicationContext
+    //         .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+    //         .emit(eventName, params)
+    //     Log.d("CameraModule", "Event emitted successfully.")
+    // }
 
+//     fun sendEventToReact(eventName: String, params: String) {
+//     Log.d("CameraModule", "sendEventToReact called with event: $eventName and params: $params")
+//     reactApplicationContext.runOnUiQueueThread {
+//         Log.d("CameraModule", "About to emit event: $eventName with params: $params")
+//         reactApplicationContext
+//             .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+//             .emit("ImageCaptured", "success")
+//         Log.d("CameraModule", "Event emitted successfully on UI thread.")
+//     }
+// }
+
+fun sendEventToReact(eventName: String, params: String) {
+    Log.d("CameraModule", "sendEventToReact called with event: $eventName and params: $params")
+
+    // Use Handler to delay the emission
+    Handler(Looper.getMainLooper()).postDelayed({
+        reactApplicationContext.runOnUiQueueThread {
+            Log.d("CameraModule", "About to emit event: $eventName with params: $params")
+            reactApplicationContext
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .emit(eventName, params)
+            Log.d("CameraModule", "Event emitted successfully on UI thread.")
+        }
+    }, 2000) // Delay of 2 seconds
+}
 
 
 

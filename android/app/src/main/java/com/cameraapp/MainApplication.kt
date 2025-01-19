@@ -28,7 +28,7 @@ class MainApplication : Application(), ReactApplication {
       override fun getPackages(): List<ReactPackage> =
         PackageList(this).packages.apply {
           add(MainReactPackage())
-          add(com.cameraapp.CameraPackage())
+          add(CameraPackage())
         }
 
       override fun getJSMainModuleName(): String = "index"
