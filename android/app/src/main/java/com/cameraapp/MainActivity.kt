@@ -6,7 +6,7 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnable
 import com.facebook.react.defaults.DefaultReactActivityDelegate
 import android.content.Intent
 import android.app.Activity
-
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import android.os.Bundle
 import android.util.Log
@@ -20,84 +20,108 @@ import com.facebook.react.bridge.ReactContext
 import android.os.Handler
 import android.os.Looper
 import com.facebook.react.ReactInstanceManager
+import com.facebook.react.ReactInstanceEventListener
+
+import com.cameraapp.MainApplication
+
 
 class MainActivity : ReactActivity() {
     private lateinit var cameraLauncher: ActivityResultLauncher<Intent>
+    
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("TAG", "onCreate called")
         Log.d("MyTag", "onCreate function in MainActivity.kt called")
 
-        Log.d("MainActivity", "hi this is frustrating ddsfsd")
-        // Initialize the ActivityResultLauncher
-        cameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            Log.d("MainActivity", "hi this is frustrating")
-            if (result.resultCode == Activity.RESULT_OK) {
-                Log.d("MainActivity", "Camera result received successfully.")
+        val reactInstanceManager = (application as MainApplication).reactNativeHost.reactInstanceManager 
+fun handleReactContext(reactContext: ReactContext, result: ActivityResult) {
+    try {
+        val cameraModule = reactContext.getNativeModule(CameraModule::class.java)
+        if (cameraModule != null) {
+            cameraModule.sendEventToReact("ImageCaptured", "success")
+            Log.d("MainActivity", "Event sent to React successfully.")
+        } else {
+            Log.e("MainActivity", "CameraModule is null.")
+        }
+    } catch (e: Exception) {
+        Log.e("MainActivity", "Error processing camera result: ${e.message}", e)
+    }
+}
+ cameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            Log.d("MainActivity", "Camera result received successfully.")
 
-                // Access the ReactInstanceManager from the application
-                val reactInstanceManager = (application as ReactApplication).reactNativeHost.reactInstanceManager
-                Log.d("MainActivity", "ReactInstanceManager: $reactInstanceManager")
-                Log.d("MainActivity", "After disneysea Camera result received successfully.")
-                // Check if the ReactContext is already initialized
-                val reactContext = reactInstanceManager.currentReactContext
-                Log.d("MainActivity","Just after initializing reactContext PIGLETS ")
-                Log.d("MainActivity","Just after initializing reactContext PIGLETS, reactContext: $reactContext ") 
-                // this reactContext keep being null, and this is the probelm
-                Log.d("MainActivity","End of JuST after initializing reactContext PIGLETS ")
-                if (reactContext != null) {
-                    Log.d("MainActivity","reactContext PIGLETS is not null")
-                    try {
-                        val cameraModule = reactContext.getNativeModule(CameraModule::class.java)
-                        if (cameraModule != null) {
-                            Log.d("MainActivity", "CameraModule found.")
-                            cameraModule.sendEventToReact("ImageCaptured", "success") // Send event to React Native
-                        } else {
-                            Log.e("MainActivity", "CameraModule is null.")
-                        }
-                    } catch (e: Exception) {
-                        Log.e("MainActivity", "Error accessing CameraModule: ${e.message}", e)
-                    }
-                } else {
-                    // ReactContext is not ready; retry after a delay
-                    Log.e("MainActivity", "ReactContext is null. Retrying...")
-                    retryAccessCameraModule(reactInstanceManager)
-                }
+            val reactContext = reactInstanceManager.currentReactContext
+            Log.d("MainActivity", "ReactContext value: $reactContext")
+
+            if (reactContext == null) {
+                // ReactContext is null, attempt to initialize it
+                Log.e("MainActivity", "ReactContext is null. Initializing ReactContext...")
+                reactInstanceManager.addReactInstanceEventListener(object : ReactInstanceManager.ReactInstanceEventListener {
+    override fun onReactContextInitialized(reactContext: ReactContext) {
+        handleReactContext(reactContext, result)
+    }
+})
+                // Trigger ReactContext creation
+                reactInstanceManager.createReactContextInBackground()
             } else {
-                Log.e("MainActivity", "Camera result not OK.")
+                // ReactContext is already available, proceed with your logic
+                Log.d("MainActivity", "ReactContext is available. Processing the result.")
+                handleReactContext(reactContext, result)
             }
+        } else {
+            Log.e("MainActivity", "Camera result not OK.")
         }
     }
 
-//    private fun navigateToNextScreenFallback() {
-//        val intent = Intent(this, NextScreenActivity::class.java)
-//        startActivity(intent)
-//        Log.d("MainActivity", "Navigating to NextScreen fallback.")
-//    }
+
+    }
 
 
-    // override fun onResume() {
-    //     super.onResume()
-    //     Log.d("MainActivity", "onResume called")
-    //     Log.d("MainActivity", "wondering if can see this")
-    //     // Check if the React context is available
-    //     val reactContext = reactInstanceManager.currentReactContext
+    
 
-    //     Log.d("MainActivity", "DID Y SEE THIS???")
-    //     if (reactContext != null) {
-    //         Log.d("MainActivity", "React context is available in onResume")
-    //         // Proceed with your logic (e.g., send the camera result to React Native)
-    //     } else {
-    //         Log.d("MainActivity", "React context is null in onResume")
-    //         // Handle the case where the React context is not available
-    //     }
+     override fun onStart() {
+        // seems like onStart called when app start and return to react native app from camera app
+        super.onStart()
+        Log.d("TAG", "onStart called")
+    }
+
+    override fun onResume() {
+        // called when app starts 
+        super.onResume()
+        Log.d("TAG", "onResume called")
+    //     if (reactInstanceManager.currentReactContext == null) {
+    //     Log.w("MainActivity", "ReactContext is null on onResume. Retrying initialization.")
+    //     waitForReactContext()
     // }
+    }
+
+    override fun onPause() {
+        //onPause is also called when i pressed the open camera button on the HomeScreen.tsx
+        super.onPause()
+        Log.d("TAG", "onPause called")
+        
+    }
+
+    override fun onStop() {
+        //onStop function is called when i press the open camera button on the HomeScreen.tsx
+        super.onStop()
+        Log.d("TAG", "onStop called")
+    }
 
 
-    private fun retryAccessCameraModule(reactInstanceManager: ReactInstanceManager, retries: Int = 5) {
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("MainActivityLifecycle", "onDestroy called")
+        // Add your cleanup logic here
+    }
+
+
+    private fun retryAccessCameraModule(reactInstanceManager: ReactInstanceManager, retries: Int = 15) {
         if (retries == 0) {
             Log.e("MainActivity", "Failed to access CameraModule after retries.")
-//            navigateToNextScreenFallback()
+
             return
         }
 
@@ -124,6 +148,7 @@ class MainActivity : ReactActivity() {
 
 
   fun launchCamera(intent: Intent) {
+    //cameraLauncher is a private variable in this class
       cameraLauncher.launch(intent)
   }
   override fun getMainComponentName(): String = "CameraApp"
@@ -131,6 +156,8 @@ class MainActivity : ReactActivity() {
   
   override fun createReactActivityDelegate(): ReactActivityDelegate =
       DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
+
+
 
 
 
