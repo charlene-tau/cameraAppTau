@@ -35,6 +35,8 @@ class MainActivity : ReactActivity() {
         Log.d("MyTag", "onCreate function in MainActivity.kt called")
 
         val reactInstanceManager = (application as MainApplication).reactNativeHost.reactInstanceManager 
+
+
 fun handleReactContext(reactContext: ReactContext, result: ActivityResult) {
     try {
         val cameraModule = reactContext.getNativeModule(CameraModule::class.java)
@@ -48,6 +50,9 @@ fun handleReactContext(reactContext: ReactContext, result: ActivityResult) {
         Log.e("MainActivity", "Error processing camera result: ${e.message}", e)
     }
 }
+
+
+
  cameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             Log.d("MainActivity", "Camera result received successfully.")
