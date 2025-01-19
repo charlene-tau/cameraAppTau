@@ -18,6 +18,11 @@ class MainApplication : Application(), ReactApplication {
   
   override val reactNativeHost: ReactNativeHost =
     object : DefaultReactNativeHost(this) {
+
+      init {
+            Log.d("MainApplication", "reactNativeHost initialized DOLPHINE")
+        }
+      
       override fun getPackages(): List<ReactPackage> =
         PackageList(this).packages.apply {
           
@@ -37,6 +42,7 @@ class MainApplication : Application(), ReactApplication {
 
   override fun onCreate() {
     super.onCreate()
+    Log.d("MainApplication","onCreate called")
     SoLoader.init(this, OpenSourceMergedSoMapping)
     if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
       // If you opted-in for the New Architecture, we load the native entry point for this app.
