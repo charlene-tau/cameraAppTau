@@ -33,6 +33,7 @@ class CameraModule(reactContext: ReactApplicationContext) : ReactContextBaseJava
     companion object {
         private const val TAG = "MyClassTag"
         const val NAME = "CameraModule"
+        var currentPromise: Promise? = null
     }
     private val reactContext: ReactApplicationContext = reactContext
     private var photoFilePath: String? = null
@@ -60,14 +61,16 @@ class CameraModule(reactContext: ReactApplicationContext) : ReactContextBaseJava
            return
        }
 
+       currentPromise = promise
+
        try{
             val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             Log.d("MyTag", "Launching camera with intent: $cameraIntent")
             if (currentActivity is MainActivity) {
             currentActivity.launchCamera(cameraIntent)
 
-                promise.resolve("Camera opened successfully")}
-
+                //promise.resolve("Camera opened successfully")}
+            }
             else {
             Log.e("MyTag", "Current activity is not MainActivity, cannot launch camera")
             promise.reject("Error", "Current activity is not MainActivity")
@@ -93,38 +96,21 @@ class CameraModule(reactContext: ReactApplicationContext) : ReactContextBaseJava
         Log.d("CameraModule", "Listeners removed:")
     }
 
-    // fun sendEventToReact(eventName: String, params: String) {
-    //     Log.d("CameraModule", "sendEventToReact called with event: $eventName and params: $params")
-    //     reactApplicationContext
-    //         .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-    //         .emit(eventName, params)
-    //     Log.d("CameraModule", "Event emitted successfully.")
-    // }
-
-//     fun sendEventToReact(eventName: String, params: String) {
-//     Log.d("CameraModule", "sendEventToReact called with event: $eventName and params: $params")
-//     reactApplicationContext.runOnUiQueueThread {
-//         Log.d("CameraModule", "About to emit event: $eventName with params: $params")
-//         reactApplicationContext
-//             .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-//             .emit("ImageCaptured", "success")
-//         Log.d("CameraModule", "Event emitted successfully on UI thread.")
-//     }
-// }
+    
 
 fun sendEventToReact(eventName: String, params: String) {
     Log.d("CameraModule", "sendEventToReact called with event: $eventName and params: $params")
-
+currentPromise?.resolve("promise here wonderlust")
     // Use Handler to delay the emission
-    Handler(Looper.getMainLooper()).postDelayed({
-        reactApplicationContext.runOnUiQueueThread {
-            Log.d("CameraModule", "About to emit event: $eventName with params: $params")
-            reactApplicationContext
-                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-                .emit(eventName, params)
-            Log.d("CameraModule", "Event emitted successfully on UI thread.")
-        }
-    }, 2000) // Delay of 2 seconds
+    // Handler(Looper.getMainLooper()).postDelayed({
+    //     reactApplicationContext.runOnUiQueueThread {
+    //         Log.d("CameraModule", "About to emit event: $eventName with params: $params")
+    //         reactApplicationContext
+    //             .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+    //             .emit(eventName, params)
+    //         Log.d("CameraModule", "Event emitted successfully on UI thread.")
+    //     }
+    // }, 2000) // Delay of 2 seconds
 }
 
 

@@ -31,14 +31,16 @@ class MainActivity : ReactActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("TAG", "onCreate called")
+        Log.d("TAG", "onCreate called ctsj")
         Log.d("MyTag", "onCreate function in MainActivity.kt called")
 
         val reactInstanceManager = (application as MainApplication).reactNativeHost.reactInstanceManager 
 
+        val reactContext = reactInstanceManager.currentReactContext
+        Log.d("MainActivity","value of reactContext: $reactContext")
 
-fun handleReactContext(reactContext: ReactContext, result: ActivityResult) {
-    try {
+        fun handleReactContext(reactContext: ReactContext, result: ActivityResult) {
+        try {
         val cameraModule = reactContext.getNativeModule(CameraModule::class.java)
         if (cameraModule != null) {
             cameraModule.sendEventToReact("ImageCaptured", "success")
@@ -46,14 +48,14 @@ fun handleReactContext(reactContext: ReactContext, result: ActivityResult) {
         } else {
             Log.e("MainActivity", "CameraModule is null.")
         }
-    } catch (e: Exception) {
-        Log.e("MainActivity", "Error processing camera result: ${e.message}", e)
-    }
-}
+         } catch (e: Exception) {
+            Log.e("MainActivity", "Error processing camera result: ${e.message}", e)
+        }
+        }
 
 
 
- cameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            cameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             Log.d("MainActivity", "Camera result received successfully.")
 
@@ -63,11 +65,29 @@ fun handleReactContext(reactContext: ReactContext, result: ActivityResult) {
             if (reactContext == null) {
                 // ReactContext is null, attempt to initialize it
                 Log.e("MainActivity", "ReactContext is null. Initializing ReactContext...")
-                reactInstanceManager.addReactInstanceEventListener(object : ReactInstanceManager.ReactInstanceEventListener {
-    override fun onReactContextInitialized(reactContext: ReactContext) {
+        
+        //start of replacement
+        //                 reactInstanceManager.addReactInstanceEventListener(object : ReactInstanceManager.ReactInstanceEventListener {
+        //         override fun onReactContextInitialized(reactContext: ReactContext) {
+        // Log.d("MainActivity","jus abt to call handleReactContext")
+        // Log.d("MainActivity","jus abt to call view reactContext: $reactContext")
+        // handleReactContext(reactContext, result)
+        //         }
+        //         })
+        //end of replacement
+
+// start of either the above or this
+        reactInstanceManager.addReactInstanceEventListener(
+    ReactInstanceManager.ReactInstanceEventListener { reactContext ->
+        Log.d("MainActivity", "NEWLY just about to call handleReactContext ctsj")
+        Log.d("MainActivity", "NEWLY just about to call view reactContext: $reactContext")
         handleReactContext(reactContext, result)
     }
-})
+)
+// end of either the above or this
+        
+
+                Log.d("MainActivity","Going to call createReactContextInBackground startssss")
                 // Trigger ReactContext creation
                 reactInstanceManager.createReactContextInBackground()
             } else {
@@ -78,7 +98,7 @@ fun handleReactContext(reactContext: ReactContext, result: ActivityResult) {
         } else {
             Log.e("MainActivity", "Camera result not OK.")
         }
-    }
+                    }
 
 
     }
@@ -89,7 +109,7 @@ fun handleReactContext(reactContext: ReactContext, result: ActivityResult) {
      override fun onStart() {
         // seems like onStart called when app start and return to react native app from camera app
         super.onStart()
-        Log.d("TAG", "onStart called")
+        Log.d("TAG", "onStart called Mainz vfdgdgd")
     }
 
     override fun onResume() {
@@ -114,7 +134,11 @@ fun handleReactContext(reactContext: ReactContext, result: ActivityResult) {
         super.onStop()
         Log.d("TAG", "onStop called")
     }
-
+    override fun onRestart() {
+        super.onRestart()
+        Log.d("MainActivityLifecycle", "onRestart called")
+        // Add your cleanup logic here
+    }
 
     override fun onDestroy() {
         super.onDestroy()
